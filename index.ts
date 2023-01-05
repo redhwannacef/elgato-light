@@ -8,8 +8,8 @@ const status: LightsStatus = await fetch(url).then((response) =>
 const currentBrightness = status.lights[0].brightness;
 const brightness =
   action === "increment"
-    ? Math.min(100, currentBrightness + 10)
-    : Math.max(0, currentBrightness - 10);
+    ? Math.min(100, currentBrightness + 5)
+    : Math.max(0, currentBrightness - 5);
 
 await fetch(url, {
   method: "PUT",
