@@ -1,8 +1,8 @@
 const action = Deno.args[0] as Action;
-const url = "http://192.168.1.168:9123/elgato/lights";
+const url = Deno.env.get("ELGATO_LIGHT_BASE_URL") + "/elgato/lights";
 
 const status: LightsStatus = await fetch(url).then((response) =>
-  response.json()
+  response.json(),
 );
 
 const currentBrightness = status.lights[0].brightness;
