@@ -1,20 +1,30 @@
 const action = Deno.args[0] as Action;
-const url = Deno.env.get("ELGATO_LIGHT_BASE_URL") + "/elgato/lights";
+const path = "/elgato/lights";
+const urls = Deno.env.get("ELGATO_LIGHT_BASE_URLS");
 
-const status: LightsStatus = await fetch(url).then((response) =>
-  response.json(),
-);
+if (!urls) {
+  console.error(`env var 'ELGATO_LIGHT_BASE_URLS' is required`);
+  Deno.exit(1);
+}
 
-const currentBrightness = status.lights[0].brightness;
-const brightness =
-  action === "increment"
-    ? Math.min(100, currentBrightness + 5)
-    : Math.max(0, currentBrightness - 5);
+await Promise.all(urls.split(",").map((url) => updateLight(url + path)));
 
-await fetch(url, {
-  method: "PUT",
-  body: JSON.stringify({ lights: [{ brightness }] }),
-});
+async function updateLight(url: string) {
+  const status: LightsStatus = await fetch(url).then((response) =>
+    response.json(),
+  );
+
+  const currentBrightness = status.lights[0].brightness;
+  const brightness =
+    action === "increment"
+      ? Math.min(100, currentBrightness + 5)
+      : Math.max(0, currentBrightness - 5);
+
+  await fetch(url, {
+    method: "PUT",
+    body: JSON.stringify({ lights: [{ brightness }] }),
+  });
+}
 
 type Action = "increment" | "decrement";
 
